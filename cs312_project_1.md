@@ -102,7 +102,7 @@ Restart=always
 [Install]
 WantedBy=multi-user.target
 ```
-6. Enable the automatic service and start it
+6. Enable the automatic startup service and start it
 ```bash
 sudo systemctl daemon-reexec
 sudo systemctl daemon-reload
@@ -112,26 +112,59 @@ sudo systemctl start minecraft
 
 ---
 
-#Part 5: Test the Automatic Startup Service
-1. Start the Minecraft Server
+# Part 5: Test the Automatic Startup Service and configured server port
+1. Verify the Minecraft service is running
 ```bash
-java -Xmx700M -Xms512M -jar server.jar nogui
+sudo systemctl status minecraft
 ```
-You should see the message "Done (...)! For help, type "help"
-2. reboot the EC2 instance
+
+You should see:
+
+```text
+active (running)
+```
+2. Verify the configured Minecraft server port
+```bash
+grep server-port server.properties
+```
+Toward the bottom of the file you should see 
+```text
+server-port=25565
+```
+3. reboot the EC2 instance
 ```bash
 sudo reboot
 ```
 Your SSH session will end
-3. Wait a 1-2 minutes then reconnect to the Instance (make sure to replace <public-ip> with the actual IP of the instance
+4. Wait a 1-2 minutes then reconnect to the Instance (make sure to replace <public-ip> with the actual IP of the instance
 ```bash
 ssh -i minecraft-key.pem ubuntu@<public-ip>
 ```
-4. Check to see if the server is still running
+5. Check to see if the server is still running
 ```bash
 sudo systemctl status minecraft
 ```
-You should see "active (running)"
+You should see a message similar to:
+
+```text
+Done (...)! For help, type "help"
+
+---
+
+
+# Part 6: Verify External Connectivity with Nmap
+1. Install nmap on your local computer. For macOS users using Homebrew, open a new terminal and run this command:
+```bash
+brew install nmap
+```
+2. Run the Nmap scan from your local machine, replace <public-ip> with the IPv4 address of the EC2 instance
+```bash
+nmap -sV -Pn -p T:25565 <public-ip>
+```
+The expected output should show "25565/tcp" 
+
+# Congrats! You have successfully setup and deployed a Minecraft Server 
+
 
 
 
